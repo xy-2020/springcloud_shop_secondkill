@@ -1,0 +1,52 @@
+server:
+  port: 80
+spring:
+  application:
+    name: gateway
+  cloud:
+    gateway:
+      #配置路由规则
+      routes:
+        #后台服务的路由
+        - id: back
+          uri: lb://MICSERVICE-BACK
+          predicates:
+            - Path=/back/**
+          filters:
+            - StripPrefix=1
+        #秒杀服务的路由规则
+        - id: kill2
+          uri: lb://MICSERVICE-KILL
+          predicates:
+            - Path=/kill/qiangGou
+          filters:
+            - myCode
+            - myKill
+        - id: kill
+          uri: lb://MICSERVICE-KILL
+          predicates:
+            - Path=/kill/**,/html/**
+        #用户服务的路由规则
+        - id: sso
+          uri: lb://MICSERVICE-SSO
+          predicates:
+            - Path=/sso/**
+        #静态资源服务的路由规则
+        - id: resources
+          uri: lb://MICSERVICE-RESOURCES
+          predicates:
+            - Path=/css/**,/images/**,/js/**,/widget/**
+        #首页服务的路由规则
+        - id: front
+          uri: lb://MICSERVICE-FRONT
+          predicates:
+            - Path=/**
+          filters:
+            - name: RequestRateLimiter
+              args:
+                #限流规则
+                key-resolver: '#{@remoteAddrKeyResolver}'
+                #放令牌的速率 1S/5个
+                redis-rate-limiter.replenishRate: 1
+                #令牌桶的容量 总共10个
+                redis-rate-limiter.burstCapacity: 1

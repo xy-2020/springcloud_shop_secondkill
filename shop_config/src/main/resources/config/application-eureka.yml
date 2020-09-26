@@ -1,0 +1,6 @@
+eureka:
+  instance:
+    prefer-ip-address: true #以IP地址注册到服务中心，相互注册使用IP地址
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:8080/eureka
